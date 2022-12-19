@@ -1,0 +1,91 @@
+<odoo>
+  <data>
+
+    <record id="res_partner_request_view_tree" model="ir.ui.view">
+      <field name="name">res.partner.request.view.tree</field>
+      <field name="model">res.partner.request</field>
+      <field name="arch" type="xml">
+        <tree string="Partner Request">
+          <field name="firstname" />
+          <field name="lastname" />
+          <field name="othername" />
+          <field name="phone" />
+          <field name="email" />
+          <field name="gender" />
+        </tree>
+      </field>
+    </record>
+
+    <record id="res_partner_request_view_form" model="ir.ui.view">
+      <field name="name">res.partner.request.view.form</field>
+      <field name="model">res.partner.request</field>
+      <field name="arch" type="xml">
+        <form string="Partner Request">
+          <sheet>
+            <group>
+              <group>
+                <field name="firstname" />
+                <field name="lastname" />
+                <field name="othername" />
+                <field name="email" />
+                <div class="o_address_format">
+                  <field name="street" placeholder="Street..." class="o_address_street" />
+                  <field name="city" placeholder="City" class="o_address_city" />
+                  <field name="state_id" class="o_address_state" placeholder="State"
+                    options='{"no_open": True}' />
+                  <field name="zipcode" placeholder="Zip code" class="o_address_zip" />
+                  <field name="country_id" placeholder="Country" class="o_address_country"
+                    options='{"no_open": True, "no_create": True}' />
+                </div>
+              </group>
+              <group>
+                <field name="phone" />
+                <field name="gender" />
+                <field name="date_of_birth" />
+              </group>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record id="res_partner_request_view_search" model="ir.ui.view">
+      <field name="name">res.partner.request.view.search</field>
+      <field name="model">res.partner.request</field>
+      <field name="arch" type="xml">
+        <search string="Partner request">
+          <field name="firstname" />
+          <field name="lastname" />
+          <field name="othername" />
+          <field name="email" />
+          <field name="phone" />
+        </search>
+      </field>
+    </record>
+
+    <record id="res_partner_request_action" model="ir.actions.act_window">
+      <field name="name">Vendor Request</field>
+      <field name="res_model">res.partner.request</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[]</field>
+      <field name="context">{}</field>
+      <field name="help" type="html">
+        <p class="oe_no_content_create">Click to create a new request.</p>
+      </field>
+    </record>
+
+    <menuitem
+      id="res_partner_request_menu"
+      name="Vendor registration"
+      sequence="10" />
+
+    <menuitem
+      id="res_partner_request_submenu"
+      name="Vendor registration"
+      parent="res_partner_request_menu"
+      sequence="1"
+      action="res_partner_request_action"
+    />
+
+  </data>
+</odoo>
