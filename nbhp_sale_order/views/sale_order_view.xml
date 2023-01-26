@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>nbhp
+
+        <record id="nbhp_view_order_form" model="ir.ui.view">
+            <field name="name">nbhp.view.order.form</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//header/field[@name='state']" position="attributes">
+                    <attribute name="statusbar_visible">draft,sent,submit,warehouse_officer_approval,quality_officer_approval,production_manager_approval,factory_manager_approval,sale</attribute>
+                </xpath>
+                <xpath expr="//header//button[@name='action_confirm'][1]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//header//button[@name='action_confirm'][last()]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//header//button[@name='action_draft'][1]" position="attributes">
+                    <attribute name="states">cancel,reject</attribute>
+                </xpath>
+                <xpath expr="//header" position="inside">
+                    <button name="submit" string="Submit" type="object" attrs="{'invisible': [('state', 'not in', ['sent','draft'])]}" />
+                    <button name="approve_store_office" string="Approve" type="object" class="oe_highlight" states="submit" groups="nbhp_base.group_store_officer"/>
+                    <button name="approve_warehouse_officer" string="Approve" type="object" class="oe_highlight" states="warehouse_officer_approval" groups="nbhp_base.group_warehouse_officer"/>
+                    <button name="approve_quality_officer" string="Approve" type="object" class="oe_highlight" states="quality_officer_approval" groups="nbhp_base.group_quality_officer"/>
+                    <button name="approve_production_manager" string="Approve" type="object" class="oe_highlight" states="production_manager_approval" groups="nbhp_base.group_production_manager"/>
+                    <button name="approve" string="Approve" type="object" class="oe_highlight" states="factory_manager_approval" groups="nbhp_base.group_factory_manager"/>
+                    <button name="action_reject" string="Reject" type="object" class="btn btn-danger" states="submit,warehouse_officer_approval,quality_officer_approval,production_manager_approval,factory_manager_approval" />
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>
