@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="nbhp_stock_scrap_form_view" model="ir.ui.view">
+            <field name="name">nbhp.stock.scrap.form</field>
+            <field name="model">stock.scrap</field>
+            <field name="inherit_id" ref="stock.stock_scrap_form_view" />
+            <field name="arch" type="xml">
+
+                <xpath expr="//header/field[@name='state']" position="attributes">
+                    <attribute name="statusbar_visible">new,submit,hod,finance,done</attribute>
+                </xpath>
+
+                <xpath expr="//header" position="inside">
+                    <button name="button_submit" string="Submit" type="object" states="new"/>
+                    <button name="button_hod_approve" string="Approve" type="object" class="oe_highlight" states="submit"/>
+                    <button name="button_finance_approve" string="Approve" type="object" class="oe_highlight" states="hod" groups="account.group_account_manager"/>
+                    <button name="button_reset" string="Set to Draft" type="object" states="reject"/>
+                    <button name="button_reject" string="Reject" type="object" class="btn btn-danger" states="submit,hod,iac"/>
+                </xpath>
+
+                <xpath expr="//header//button[@name='action_validate'][1]" position="attributes">
+                    <attribute name="groups">account.group_account_manager</attribute>
+                    <attribute name="states">finance</attribute>
+                </xpath>
+        	    
+                <field name="origin" position="after">
+            	    <field name="requester_id"/>
+            	    <field name="requester_department_id"/>
+            	    <field name="requester_hod_id"/>
+                </field>
+
+            </field>
+        </record>
+
+    </data>
+</odoo>
