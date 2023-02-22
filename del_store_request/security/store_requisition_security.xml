@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	<data>
+	    <record model="ir.module.category" id="store_requisition_security">
+	    	<field name="name">Store Requisition</field>
+<!--	    	<field name="sequence">204</field>-->
+	    </record>
+
+	    <record id="store_requisition_user" model="res.groups">
+	    	<field name="name" >Store User</field>
+	    	<field name="category_id" ref="store_requisition_security"/>
+			<field name="implied_ids" eval="[(4, ref('base.group_user'))]" />
+	    </record>
+
+	    <record id="store_requisition_dept_manager" model="res.groups">
+	    	<field name="name" >Store Department Manager</field>
+	    	<field name="category_id" ref="store_requisition_security"/>
+		<field name="implied_ids" eval="[(4, ref('store_requisition_user'))]" />
+	    </record>
+
+	    <record id="store_requisition_main_manager" model="res.groups">
+	    	<field name="name" >Store Main Manager</field>
+	    	<field name="category_id" ref="store_requisition_security"/>
+		<field name="implied_ids" eval="[(4, ref('store_requisition_user'))]" />
+	    </record>
+
+	    <record id="store_requisition_stock_officer" model="res.groups">
+	    	<field name="name">Store Warehouse Officer</field>
+	    	<field name="category_id" ref="store_requisition_security"/>
+		<field name="implied_ids" eval="[(4, ref('store_requisition_user'))]" />
+	    </record>
+	    
+		<!-- Departmental manager see own department's records -->
+	    <record model="ir.rule" id="store_requisition_comp_manager_rule">
+	    	<field name="name">Store Requisition Department Rule</field>
+	    	<field name="model_id" ref="model_store_request"/>
+	    	<field name="global" eval="False"/>
+			<field name="groups" eval="[(4, ref('store_requisition_dept_manager'))]" />
+	    	<field name="domain_force">['|',('requester.department_id.manager_id.id','=',user.id),
+				('requester.id','=',user.id)]</field>
+	    </record>
+
+	    <!--  -->
+	    <record model="ir.rule" id="store_requsition_comp_manager_rule">
+	    	<field name="name">Store Requisition Manager See All</field>
+	    	<field name="model_id" ref="model_store_request"/>
+	    	<field name="global" eval="False"/>
+		<field name="groups" eval="[(4, ref('store_requisition_main_manager'))]" />
+	    	<field name="domain_force">[(1,'=',1)]</field>
+	    </record>
+		
+	    <record model="ir.rule" id="store_requisition_user_rule">
+	    	<field name="name">Store Internal Requester</field>
+	    	<field name="model_id" ref="model_store_request"/>
+	    	<field name="global" eval="False"/>
+	    	<field name="groups" eval="[(4, ref('del_store_request.store_requisition_user'))]"/>
+	    	<field name="domain_force">[('create_uid','=',user.id)]</field>
+	    </record>
+
+	    <record model="ir.rule" id="store_requsition_user_rule">
+	    	<field name="name">Store Internal Requester</field>
+	    	<field name="model_id" ref="model_store_request"/>
+	    	<field name="global" eval="False"/>
+	    	<field name="groups" eval="[(4, ref('del_store_request.store_requisition_user'))]"/>
+	    	<field name="domain_force">[('create_uid','=',user.id)]</field>
+	    </record>
+
+		 <record model="ir.rule" id="store_multicompany_rule_id">
+        <field name="name">Multi Company Rule for Store Distribution</field>
+        <field name="model_id" ref="model_store_request"/>
+        <field name="domain_force">['|',('company_id','=',False),('company_id', 'in', company_ids)]</field>
+    </record>
+	</data>
+</odoo>
