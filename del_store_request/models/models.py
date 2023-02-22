@@ -49,6 +49,17 @@ class StoreRequest(models.Model):
         if self.end_user:
             self.hod=self.end_user.department_id.manager_id.id
 
+<<<<<<< HEAD
+=======
+    # @api.model
+    # def default_get(self, fields):
+    #     defaults = super(StoreRequest, self).default_get(fields)
+    #     if defaults.get('kkk')==True:
+    #         print(fields)
+    #         print(defaults.get('kkk'))
+
+
+>>>>>>> 54bb087fb778e077d0492339d4e0ed5781ca0702
     name = fields.Char(string='Number', default='/')
     state = fields.Selection(selection=REQUEST_STAGE, default='draft', track_visibility='onchange')
     requester = fields.Many2one('res.users', string='Requester', default=_current_login_user,
@@ -64,8 +75,13 @@ class StoreRequest(models.Model):
                                       domain=[('usage','!=','view')])
     src_location_id = fields.Many2one('stock.location', string='Source Location',
                                       help='Departmental Stock Location', track_visibility='onchange'
+<<<<<<< HEAD
                                       , default = lambda self: self.env.user.company_id.source_location if(self.kkk != True) else None)
     kkk=fields.Boolean("KKK")
+=======
+                                      , default = lambda self: self.env.user.company_id.source_location if(self.kkk == True) else None)
+    kkk=fields.Boolean("Internal  Request")
+>>>>>>> 54bb087fb778e077d0492339d4e0ed5781ca0702
     # , default = lambda self: self.env.user.company_id.source_location
     # request_ids = fields.One2many('ng.ir.request.line', inverse_name='request_id', string='Request Line',
     #                               required=True)
@@ -73,7 +89,11 @@ class StoreRequest(models.Model):
     reason = fields.Text(string='Rejection Reason')
     availaibility = fields.Boolean(string='Availaibility', compute='_compute_availabilty')
     warehouse_id = fields.Many2one('stock.warehouse', string='Warehouse',
+<<<<<<< HEAD
                                    default=lambda self: self.env.user.company_id.warehouse_id if(self.kkk != True) else None)
+=======
+                                   default=lambda self: self.env.user.company_id.warehouse_id if(self.kkk == True) else None)
+>>>>>>> 54bb087fb778e077d0492339d4e0ed5781ca0702
     # company_id = fields.Many2one('res.company', 'Company',
     #                              default=lambda self: self.env['res.company']._company_default_get(),
     #                              index=True, required=True)

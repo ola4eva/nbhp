@@ -78,7 +78,11 @@
                         <field name="warehouse_id" attrs="{'required' : [('state', '=', 'warehouse')],'readonly' : [('state', '!=', 'draft')]}"/>
                         <field name="src_location_id"  domain="[('usage', '=', 'internal')]"
                           attrs="{'required' : [('state', '=', 'warehouse')],'readonly' : [('state', '!=', 'draft')]}"/>
+<<<<<<< HEAD
                         <field name="kkk" invisible="1"/>
+=======
+                        <field name="kkk" invisible="0"/>
+>>>>>>> 54bb087fb778e077d0492339d4e0ed5781ca0702
                     </group>
                     <group>
                         <field name="end_user" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
@@ -117,7 +121,12 @@
                         <field name="to_procure" invisible="1"/>
                         <field name="transferred" readonly="1"/>
                         <button name="procure" type="object" string="Procure" class="oe_link"
+<<<<<<< HEAD
                           attrs="{'invisible': ['|', ('to_procure', '!=', True), ('transferred', '=', True)]}" />
+=======
+                          attrs="{'invisible': ['|', ('to_procure', '!=', True), ('transferred', '=', True)]}"
+                        groups="del_store_request.store_requisition_main_manager"/>
+>>>>>>> 54bb087fb778e077d0492339d4e0ed5781ca0702
 
                       </tree>
                     </field>

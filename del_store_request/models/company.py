@@ -1,7 +1,11 @@
 from odoo import api, fields, models
 
 
+<<<<<<< HEAD
 class ResCompany(models.Model):
+=======
+class Inheritcompany(models.Model):
+>>>>>>> 54bb087fb778e077d0492339d4e0ed5781ca0702
     _name = 'res.company'
     _inherit = 'res.company'
 

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="payment_requisition_category" model="ir.module.category">
+            <field name="name">Payment Requisition</field>
+            <field name="sequence" eval="1"/>
+        </record>
+
+        <record id="department_manager" context="{'noadmin':True}" model="res.groups">
+            <field name="name">Department Manager</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]" />
+            <field name="category_id" ref="payment_requisition_category" />
+        </record>
+
+        <record id="inter_company_user" context="{'noadmin':True}" model="res.groups">
+            <field name="name">Inter-Company Manager</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]" />
+            <field name="category_id" ref="payment_requisition_category" />
+        </record>
+        
+        <record id="general_manager" context="{'noadmin':True}" model="res.groups">
+            <field name="name">General Manager</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]" />
+            <field name="category_id" ref="payment_requisition_category" />
+        </record>
+        
+        <record id="managing_director" context="{'noadmin':True}" model="res.groups">
+            <field name="name">Managing Director</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]" />
+            <field name="category_id" ref="payment_requisition_category" />
+        </record>
+
+        <!--  Security Rules -->
+
+        <record id="property_rule_pr_employees" model="ir.rule">
+            <field name="name">Payment Requisition - Employee</field>
+            <field name="model_id" ref="model_payment_requisition" />
+            <field name="domain_force">[('employee_id.user_id.id','=',user.id)]</field>
+            <field name="groups" eval="[(4,ref('base.group_user'))]" />
+        </record>
+
+        <record id="property_rule_pr_dm_managers" model="ir.rule">
+            <field name="name">Payment Requisition - DManagers</field>
+            <field name="model_id" ref="model_payment_requisition" />
+            <field name="domain_force">[('department_id.manager_id.user_id.id','=',user.id)]</field>
+            <field name="groups" eval=" [(4,ref('department_manager'))]" />
+        </record>
+
+        <record id="property_rule_intercompany_user" model="ir.rule">
+            <field name="name">Inter-company User: User able to work across companies</field>
+            <field name="model_id" ref="model_payment_requisition" />
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4,ref('inter_company_user'))]" />
+        </record>
+
+        <record id="property_rule_pr_gm_managers" model="ir.rule">
+            <field name="name">Payment Requisition - GManagers</field>
+            <field name="model_id" ref="model_payment_requisition" />
+            <field name="domain_force">[(1,'=',1)]</field>
+            <field name="groups" eval=" [(4,ref('general_manager'))]" />
+        </record>
+
+        <record id="property_rule_pr_md_managers" model="ir.rule">
+            <field name="name">Payment Requisition - MDManagers</field>
+            <field name="model_id" ref="model_payment_requisition" />
+            <field name="domain_force">[(1,'=',1)]</field>
+            <field name="groups" eval=" [(4,ref('managing_director'))]" />
+        </record>
+
+        <record id="property_rule_pr_am_managers" model="ir.rule">
+            <field name="name">Payment Requisition - AManagers</field>
+            <field name="model_id" ref="model_payment_requisition" />
+            <field name="domain_force">[(1,'=',1)]</field>
+            <field name="groups" eval=" [(4,ref('account.group_account_user'))]" />
+        </record>
+
+        <record id="requisition_multi_company_manager_rule" model="ir.rule">
+            <field name="name">Inter-company Global Access</field>
+            <field ref="model_payment_requisition" name="model_id"/>
+            <field name="domain_force">[('company_id', '=', user.company_id.id)]</field>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+            <field name="global" eval="1"/>
+        </record>
+
+    </data>
+</odoo>
