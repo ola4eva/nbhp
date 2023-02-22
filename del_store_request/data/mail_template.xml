@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+	  <record id="store_requisition_submit" model="mail.template">
+			<field name="name" >Store Confirmed Email to Manager</field>
+            <field name="email_from">"{{ object.company_id.name }}" &lt;{{ (object.company_id.email or user.email) }}&gt;</field>
+			<field name="subject">A Store Requisition Has Been Created</field>
+			<field name="email_to">{{ object.hod.work_email }}</field>
+			<field name="model_id"  ref="del_store_request.model_store_request"/>
+			<field name="body_html" type="html">
+				<div>
+				<p style="margin: 0px; padding: 0px; font-size: 13px;">
+						Dear
+						<t t-if="object.hod">
+							<t t-out="object.hod.name"/>,
+						</t>
+					<br/>
+					<t t-out=" object.requester.name"/> created Store Requisition,with Sequence No <t t-out="object.name"/>
+					<br/>
+					Regards and Thanks
+					</p>
+				</div>
+			</field>
+		</record>
+
+		<record id="store_requisition_approval" model="mail.template">
+			<field name="name" >Store Approval Email</field>
+            <field name="email_from">"{{ object.company_id.name }}" &lt;{{ (object.company_id.email or user.email) }}&gt;</field>
+			<field name="email_to">{{ object.src_location_id.stock_user_id.login }}</field>
+			<field name="subject">A Store Requisition Approval Email</field>
+			<field name="model_id"  ref="del_store_request.model_store_request"/>
+			<field name="body_html" type="html">
+				<div>
+				<p style="margin: 0px; padding: 0px; font-size: 13px;">
+						Dear
+						<t t-if="object.src_location_id.stock_user_id.name">
+							<t t-out="object.src_location_id.stock_user_id.name"/>,
+						</t>
+					<br/>
+					<t t-out=" object.requester.name"/> created Store Requisition,with Sequence No <t t-out="object.name"/>
+					<br/>
+					Regards and Thanks
+					</p>
+				</div>
+			</field>
+		</record>
+
+		<record id="store_requisition_warehouse_officer" model="mail.template">
+			<field name="name" >Store Approval Email</field>
+			<field name="subject">Store Requisition Approval </field>
+            <field name="email_from">"{{ object.company_id.name }}" &lt;{{ (object.company_id.email or user.email) }}&gt;</field>
+			<field name="email_to">{{ object.requester.partner_id.email }}</field>
+			<field name="model_id"  ref="del_store_request.model_store_request"/>
+			<field name="body_html" type="html">
+				<div>
+				<p style="margin: 0px; padding: 0px; font-size: 13px;">
+						Dear
+						<t t-if="object.src_location_id.stock_user_id.name">
+							<t t-out="object.src_location_id.stock_user_id.name"/>,
+						</t>
+					<br/>
+					<t t-out=" object.requester.name"/> created Store Requisition,with Sequence No <t t-out="object.name"/>
+					<br/>
+					Regards and Thanks
+					</p>
+				</div>
+			</field>
+		</record>
+
+		<record id="store_requisition_transfer" model="mail.template">
+			<field name="name" >Store Requisition Transfer Email</field>
+            <field name="email_from">"{{ object.company_id.name }}" &lt;{{ (object.company_id.email or user.email) }}&gt;</field>
+			<field name="subject">An Store Requisition Approval from </field>
+			<field name="email_to">{{ object.requester.partner_id.email }}</field>
+			<field name="model_id"  ref="del_store_request.model_store_request"/>
+			<field name="body_html" type="html">
+				<div>
+				<p style="margin: 0px; padding: 0px; font-size: 13px;">
+						Dear
+						<t t-if="object.src_location_id.stock_user_id.name">
+							<t t-out="object.src_location_id.stock_user_id.name"/>,
+						</t>
+					<br/>
+					<t t-out=" object.requester.name"/> created Store Requisition,with Sequence No <t t-out="object.name"/>
+					<br/>
+					Regards and Thanks
+					</p>
+				</div>
+			</field>
+		</record>
+		
+	</data>
+</odoo>

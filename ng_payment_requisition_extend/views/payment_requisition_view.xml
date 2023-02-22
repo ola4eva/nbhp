@@ -1,0 +1,16 @@
+<!--<?xml version="1.0" encoding="UTF-8" ?>-->
+<odoo>
+    <data>
+        <record id="payment_requisition_form_inherit" model="ir.ui.view">
+            <field name='name'>payment.requisition.form.inherit</field>
+            <field name='model'>payment.requisition</field>
+            <field name='type'>form</field>
+            <field name='inherit_id' ref="ng_payment_request.payment_requisition_form" />
+            <field name='arch' type='xml'>
+                <xpath expr="//notebook/page/field[@name='request_line']/tree/field[@name='analytic_account_id']" position="after">
+                    <field name="payment_id" attrs="{'invisible': [('parent.state', 'not in', ['paid'])]}" />
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

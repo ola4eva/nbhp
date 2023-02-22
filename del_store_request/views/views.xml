@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="stock_view_location_form_inherit_id" model="ir.ui.view">
+        <field name="name">stock.location</field>
+        <field name="model">stock.location</field>
+        <field name="inherit_id" ref="stock.view_location_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='return_location']" position="after">
+                <field name="stock_user_id"/>
+            </xpath>
+            </field>
+        </record>
+
+
+
+
+      <!-- explicit list view definition -->
+
+    <record model="ir.ui.view" id="store_requisition_list">
+      <field name="name">Store Requisition</field>
+      <field name="model">store.request</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="name"/>
+          <field name="requester"/>
+<!--          <field name="end_user"/>-->
+          <field name="request_date"/>
+          <field name="request_deadline"/>
+<!--          <field name="hod"/>-->
+          <field name="state"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="store_requisition_form">
+      <field name="name">Store Requisition</field>
+      <field name="model">store.request</field>
+      <field name="arch" type="xml">
+        <form>
+          <header>
+            <button name="submit" states="draft" string="Submit" type="object"
+              groups="del_store_request.store_requisition_user" class="oe_highlight"/>
+            <button name="department_manager_approve" states="submit" string="Approve" type="object"
+              groups="del_store_request.store_requisition_dept_manager" context="{'approved':True}" class="oe_highlight"/>
+            <button name="department_manager_approve" states="submit" string="Reject" type="object"
+              groups="del_store_request.store_requisition_dept_manager" context="{'approved':False}"/>
+            <!--  -->
+            <button name="main_manager_approve" states="approved" string="Approve" type="object" context="{'approved':True}" class="oe_highlight"
+              groups="del_store_request.store_requisition_main_manager"/>
+            <button name="main_manager_approve" states="approved" string="Reject" type="object" context="{'approved':False}"
+              groups="del_store_request.store_requisition_main_manager"/>
+            <!-- Confirm -->
+            <button name="warehouse_officer_confirm" string="Confirm" type="object" groups="del_store_request.store_requisition_stock_officer" class="oe_highlight"
+              attrs="{'invisible': ['|', ('availaibility', '=', False), ('state', 'not in',['warehouse'] )]}"/>
+            <button name="warehouse_officer_confirm_qty" states="approval" string="Confirm Qty on Hand" type="object"
+              groups="del_store_request.store_requisition_stock_officer" class="oe_highlight"/>
+              <!--  -->
+            <button name="confirmation" states="approval" string="Confirm" type="object" context="{'approved':True}" class="oe_highlight" groups="stock.group_stock_manager"/>
+            <button name="confirmation" states="approval" string="Reject" type="object" context="{'approved':False}" groups="stock.group_stock_manager"/>
+            <button name="do_transfer" states="transfer" string="Process the transfer" class="oe_highlight" type="object" groups="stock.group_stock_manager"/>
+            <button name="do_transfer_receive" states="done" string="Receive" class="oe_highlight" type="object"/>
+            <field name="state" widget="statusbar"/>
+          </header>
+            <sheet>
+                 <group>
+                          <h2><field name="name" readonly="1"/></h2>
+                    </group>
+                <group>
+                  <field name="availaibility" invisible="1"/>
+
+                    <group>
+
+                        <field name="requester" required="1" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                        <field name="company_id" readonly="1"/>
+                        <field name="request_date" required="1" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                        <field name="request_deadline" required="1" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                        <field name="warehouse_id" attrs="{'required' : [('state', '=', 'warehouse')],'readonly' : [('state', '!=', 'draft')]}"/>
+                        <field name="src_location_id"  domain="[('usage', '=', 'internal')]"
+                          attrs="{'required' : [('state', '=', 'warehouse')],'readonly' : [('state', '!=', 'draft')]}"/>
+                        <field name="kkk" invisible="0"/>
+                    </group>
+                    <group>
+                        <field name="end_user" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                        <field name="hod" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                        <field name="department" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                        <field name="dst_location_id"  attrs="{'required' : [('state', '=', 'warehouse')]}" />
+                        <field name="transit_location_id" invisible="0" readonly="1"/>
+                        <field name="stock_picking_type" invisible="1" />
+<!--                        <field name="analytic_account_id" attrs="{'required' : [('state', '=', 'warehouse')]}" />-->
+                    </group>
+                </group>
+                <notebook>
+<!--                  <page string='Requisition'>-->
+<!--                    <field name="request_ids" attrs="{'readonly': [('state', '!=', 'draft')]}">-->
+<!--                      <tree editable="top">-->
+<!--                        <field name="product_id"/>-->
+<!--                        <field name="quantity"/>-->
+<!--                        <field name="uom"/>-->
+<!--                      </tree>-->
+<!--                    </field>-->
+<!--                  </page>-->
+                  <page string='Rejection Reason' attrs="{'invisible': ['|', ('reason', '=', False), ('state', '!=', 'draft')]}">
+                    <field name="reason" readonly="1"/>
+                  </page>
+                  <page string='Requisition Line'>
+                    <field name="approve_request_ids">
+                      <tree editable='top'>
+                        <field name="product_id"/>
+                        <field name="state_main" invisible="1"/>
+                        <field name="quantity" attrs="{'readonly': [('state_main', 'not in', ['draft','approved','warehouse','submit'])]}"/>
+                        <field name="uom"/>
+                        <field name="qty"/>
+                        <field name="received_qty"/>
+                        <field name="state" invisible="0"/>
+<!--                        <field name="purchase_agreement"/>-->
+                        <field name="to_procure" invisible="1"/>
+                        <field name="transferred" readonly="1"/>
+                        <button name="procure" type="object" string="Procure" class="oe_link"
+                          attrs="{'invisible': ['|', ('to_procure', '!=', True), ('transferred', '=', True)]}"
+                        groups="del_store_request.store_requisition_main_manager"/>
+
+                      </tree>
+                    </field>
+                  </page>
+              </notebook>
+              </sheet>
+              <div class="oe_chatter">
+                <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+              </form>
+            </field>
+          </record>
+
+
+    <!-- actions opening views on models -->
+
+    <record model="ir.actions.act_window" id="store_action_window">
+        <field name="name">Store Requisition</field>
+        <field name="res_model">store.request</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+
+            </p>
+        </field>
+    </record>
+
+
+    <!-- Top menu item -->
+<!-- web_icon="ng_internal_requisition,static/images/icon.png"-->
+    <menuitem name="Stock Distribution" id="store_requisition_menu_root" groups="store_requisition_user" />
+
+    <!-- menu categories -->
+
+    <menuitem name="Stock Distribution" id="store_requisition_menu_1" parent="store_requisition_menu_root"
+      action="store_action_window" sequence="1"/>
+
+    <!-- actions -->
+  </data>
+</odoo>
