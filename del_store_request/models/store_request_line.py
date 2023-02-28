@@ -53,20 +53,12 @@ class LineApprove(models.Model):
     @api.depends('state')
     # @api.one
     def _compute_to_procure(self):
-<<<<<<< HEAD
-        to_procure = (self.state == 'partially_available' or self.state == 'not_available')
-        if self.purchase_agreement:
-            self.to_procure = False
-        else:
-            self.to_procure = to_procure
-=======
         for con in self:
             to_procure = (con.state == 'partially_available' or con.state == 'not_available')
             if con.purchase_agreement:
                 con.to_procure = False
             else:
                 con.to_procure = to_procure
->>>>>>> 54bb087fb778e077d0492339d4e0ed5781ca0702
 
     @api.depends('product_id')
     # @api.one

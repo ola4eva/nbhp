@@ -24,6 +24,7 @@
     ],
 
     'data': [
+        'security/nbhp_groups.xml',
         'security/scrap_security.xml',
         'views/stock_scrap_views.xml',
     ],
