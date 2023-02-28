@@ -4,40 +4,30 @@
 
         <!-- Users Access Rules -->
         <record id="nbhp_stock_scrap_user" model="ir.rule">
-            <field name="name">User Personal Scrap</field>
-            <field name="model_id" ref="stock.model_stock_scrap"/>
-            <!-- <field name="domain_force">[('message_partner_ids','child_of',[user.commercial_partner_id.id])]</field> -->
-            <field name="domain_force">['|',('requester_id.user_id','=',user.id),('requester_id.user_id','=',False)]</field>
-            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
-            <field name="perm_unlink" eval="True"/>
-            <field name="perm_write" eval="True"/>
-            <field name="perm_read" eval="True"/>
-            <field name="perm_create" eval="True"/>
+            <field name="name">User: own documents only</field>
+            <field name="model_id" ref="stock.model_stock_scrap" />
+            <field name="domain_force">
+                ['|',('requester_id.user_id','=',user.id),('requester_id.user_id','=',False)]</field>
+            <field name="groups" eval="[(4, ref('nbhp_scrap_workflow.group_scrap_user'))]" />
         </record>
 
         <record id="nbhp_stock_scrap_hod" model="ir.rule">
-            <field name="name">Hod's Scrap</field>
-            <field name="model_id" ref="stock.model_stock_scrap"/>
-            <!-- <field name="domain_force">[('message_partner_ids','child_of',[user.commercial_partner_id.id])]</field> -->
-            <field name="domain_force">['|',('requester_department_id.manager_id.user_id','=',user.id),('requester_department_id.manager_id.user_id','=',False)]</field>
-            <field name="groups" eval="[(4, ref('hr.group_hr_user'))]"/>
-            <field name="perm_unlink" eval="True"/>
-            <field name="perm_write" eval="True"/>
-            <field name="perm_read" eval="True"/>
-            <field name="perm_create" eval="True"/>
+            <field name="name">HOD: View Department Scrap Request</field>
+            <field name="model_id" ref="stock.model_stock_scrap" />
+            <field name="domain_force">
+                ['|',('requester_department_id.manager_id.user_id','=',user.id),('requester_department_id.manager_id.user_id','=',False)]</field>
+            <field name="groups" eval="[(4, ref('nbhp_scrap_workflow.group_scrap_user'))]" />
         </record>
 
         <record id="nbhp_stock_scrap_all" model="ir.rule">
-            <field name="name">All Scrap</field>
-            <field name="model_id" ref="stock.model_stock_scrap"/>
-            <!-- <field name="domain_force">[('message_partner_ids','child_of',[user.commercial_partner_id.id])]</field> -->
+            <field name="name">Administrator: See All Scrap</field>
+            <field name="model_id" ref="stock.model_stock_scrap" />
             <field name="domain_force">[(1,'=',1)]</field>
-            <field name="groups" eval="[(4, ref('account.group_account_manager','idl_scrap_workflow.group_iac'))]"/>
-            <field name="perm_unlink" eval="True"/>
-            <field name="perm_write" eval="True"/>
-            <field name="perm_read" eval="True"/>
-            <field name="perm_create" eval="True"/>
+            <field name="groups"
+                eval="[(4, ref('nbhp_scrap_workflow.group_scrap_admin'))]" />
         </record>
+        <!-- <field name="groups"
+                eval="[(4, ref('account.group_account_manager','idl_scrap_workflow.group_iac'))]" /> -->
 
     </data>
 </odoo>

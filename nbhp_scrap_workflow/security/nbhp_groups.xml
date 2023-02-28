@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="category_scrap" model="ir.module.category">
+            <field name="name">Scrap</field>
+        </record>
+
+        <record id="group_scrap_user" model="res.groups">
+            <field name="name">Scrap User</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]" />
+            <field name="category_id" ref="category_scrap" />
+            <field name="users" eval="[(4, ref('base.user_admin'))]" />
+        </record>
+
+        <record id="group_scrap_manager" model="res.groups">
+            <field name="name">Scrap Manager</field>
+            <field name="implied_ids" eval="[(4, ref('nbhp_scrap_workflow.group_scrap_user'))]" />
+            <field name="category_id" ref="category_scrap" />
+            <field name="users" eval="[(4, ref('base.user_admin'))]" />
+        </record>
+
+        <record id="group_scrap_admin" model="res.groups">
+            <field name="name">Scrap Administrator</field>
+            <field name="implied_ids" eval="[(4, ref('nbhp_scrap_workflow.group_scrap_manager'))]" />
+            <field name="users" eval="[(4, ref('base.user_admin'))]" />
+            <field name="category_id" ref="category_scrap" />
+        </record>
+
+    </data>
+</odoo>
