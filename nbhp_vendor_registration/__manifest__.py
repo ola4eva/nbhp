@@ -16,9 +16,13 @@
     'category': 'Uncategorized',
     'version': '0.1',
 
-    'depends': ['base'],
+    'depends': [
+        'base',
+        'mail',
+    ],
 
     'data': [
+        'security/nbhp_vendor_registration_groups.xml',
         'security/ir.model.access.csv',
         'views/res_partner_request_views.xml',
     ],

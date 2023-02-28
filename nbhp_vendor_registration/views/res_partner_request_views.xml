@@ -21,13 +21,37 @@
       <field name="model">res.partner.request</field>
       <field name="arch" type="xml">
         <form string="Partner Request">
+          <header>
+            <button name="submit" type="object" string="Confirm"
+              groups="nbhp_vendor_registration.group_vendor_reg_user" class="oe_highlight"
+              states="draft" />
+            <button name="cancel" type="object" string="Cancel"
+              groups="nbhp_vendor_registration.group_vendor_reg_user" class="oe_highlight"
+              states="draft" />
+            <button name="approve" type="object" string="Approve"
+              groups="nbhp_vendor_registration.group_vendor_reg_manager" class="oe_highlight"
+              states="confirm" />
+            <button name="reject" type="object" string="Reject"
+              groups="nbhp_vendor_registration.group_vendor_reg_manager" class="btn-danger"
+              states="confirm" />
+            <button name="reset" type="object" string="Reset"
+              groups="nbhp_vendor_registration.group_vendor_reg_manager" class="btn-danger"
+              states="approve,reject" />
+            <field name="state" widget="statusbar" statusbar_visible="draft,confirm,approve" />
+          </header>
           <sheet>
+            <div class="oe_title">
+              <label for="name" string="Vendor's Name" />
+              <h1>
+                <field name="name" />
+              </h1>
+            </div>
             <group>
               <group>
                 <field name="firstname" />
                 <field name="lastname" />
                 <field name="othername" />
-                <field name="email" />
+                <label for="street" string="Address" />
                 <div class="o_address_format">
                   <field name="street" placeholder="Street..." class="o_address_street" />
                   <field name="city" placeholder="City" class="o_address_city" />
@@ -39,12 +63,18 @@
                 </div>
               </group>
               <group>
+                <field name="email" />
                 <field name="phone" />
                 <field name="gender" />
                 <field name="date_of_birth" />
+                <field name="vendor_type" />
               </group>
             </group>
           </sheet>
+          <div class="oe_chatter">
+            <field name="message_follower_ids" groups="base.group_user" />
+            <field name="message_ids" />
+          </div>
         </form>
       </field>
     </record>
