@@ -32,15 +32,21 @@ class SprogroupPurchaseRequest(models.Model):
         return self.env["ir.sequence"].next_by_code(
             "sprogroup.purchase.request"
         )
-    
+
     @api.model
     def _get_default_approver(self):
+        self = self.sudo()
         requester = self._get_default_requested_by()
-        employee_id = self.env["hr.employee"].search([('user_id', '=', requester.id)])
-        return employee_id.parent_id.user_id.id
+        employee_id = self.env["hr.employee"].search(
+            [('user_id', '=', requester.id)])
+        manager_id = employee_id.parent_id if employee_id.parent_id else employee_id.department_id.manager_id
+        default_approver_id = manager_id and manager_id.user_id.id or False
+        return default_approver_id
 
     name = fields.Char(
-        "Request Name", size=32, required=True, tracking=True
+        "Request Name", size=32,
+        # required=True,
+        tracking=True
     )
     code = fields.Char(
         "Code",
@@ -68,7 +74,10 @@ class SprogroupPurchaseRequest(models.Model):
         default=_get_default_requested_by,
     )
     assigned_to = fields.Many2one(
-        "res.users", "Approver (Line-Manager)", required=True, default=_get_default_approver, tracking=True
+        "res.users", "Approver (Line-Manager)",
+        required=True,
+        default=_get_default_approver,
+        tracking=True
     )
     description = fields.Text("Description")
 
@@ -90,34 +99,13 @@ class SprogroupPurchaseRequest(models.Model):
         default="draft",
     )
 
-    @api.onchange("state")
-    def onchange_state(self):
-        assigned_to = None
-        if self.state:
-            if self.requested_by.id == False:
-                self.assigned_to = None
-                return
-
-            employee = self.env["hr.employee"].search(
-                [("work_email", "=", self.requested_by.email)]
-            )
-            if len(employee) > 0:
-                if (
-                    employee[0].department_id
-                    and employee[0].department_id.manager_id
-                ):
-                    assigned_to = employee[0].department_id.manager_id.user_id
-
-        self.assigned_to = assigned_to
-
     @api.depends("requested_by")
     def _compute_department(self):
         if self.requested_by.id == False:
-            self.department_id = None
-            return
+            self.requested_by = self.env.uid
 
         employee = self.env["hr.employee"].search(
-            [("work_email", "=", self.requested_by.email)]
+            ['|', ('user_id', '=', self.env.uid), ("work_email", "=", self.requested_by.email)], limit=1
         )
         if len(employee) > 0:
             self.department_id = employee[0].department_id.id
@@ -149,9 +137,7 @@ class SprogroupPurchaseRequest(models.Model):
     @api.depends("state")
     def _compute_can_manager_approved(self):
         current_user = self.env["res.users"].browse(self.env.uid)
-
         if self.state == "leader_approved" and current_user.has_group(
-            # "sprogroup_purchase_request.group_sprogroup_purchase_request_manager"
             "purchase.group_purchase_user"
         ):
             self.can_manager_approved = True
@@ -196,7 +182,6 @@ class SprogroupPurchaseRequest(models.Model):
                 "to_approve",
                 "leader_approved",
                 "manager_approved",
-                # "iac_approved",
                 "rejected",
                 "done",
             ):
@@ -226,31 +211,40 @@ class SprogroupPurchaseRequest(models.Model):
                 )
         return res
 
+    def _get_message(self):
+        message = ""
+        if self.name:
+            message = "Purchase Request '{}-{}' requires your Approval".format(
+                self.name, self.code)
+        else:
+            message = "Purchase Request '{}' requires your Approval".format(
+                self.code)
+        return message
+
     def button_draft(self):
         self.mapped("line_ids").do_uncancel()
         return self.write({"state": "draft"})
 
     def button_to_approve(self):
-        message = "Purchase Request '{}-{}' requires your Approval".format(self.name,self.code)
+        message = self._get_message()
         partners_to_notify = self.env['res.partner'].sudo()
         partners_to_notify += self.assigned_to.partner_id
-        self.notify_of_pr_order(message=message, partner_ids=partners_to_notify.ids)
+        self.notify_of_pr_order(
+            message=message, partner_ids=partners_to_notify.ids)
         return self.write({"state": "to_approve"})
 
     def button_leader_approved(self):
-        message = "Purchase Request '{}-{}' requires your Procurement Approval".format(self.name,self.code)
+        message = self._get_message()
         group_purchase_user = self.env.ref('purchase.group_purchase_user')
         partners_to_notify = self.env['res.partner'].sudo()
         for user in group_purchase_user.users:
             partners_to_notify += user.partner_id
-        self.notify_of_pr_order(message=message, partner_ids=partners_to_notify.ids)
+        self.notify_of_pr_order(
+            message=message, partner_ids=partners_to_notify.ids)
         return self.write({"state": "leader_approved"})
 
     def button_manager_approved(self):
         return self.write({"state": "manager_approved"})
-
-    # def button_iac_approved(self):
-    #     return self.write({"state": "iac_approved"})
 
     def button_rejected(self):
         self.mapped("line_ids").do_cancel()
@@ -270,7 +264,8 @@ class SprogroupPurchaseRequest(models.Model):
         if not (message and partner_ids):
             return
         self.message_subscribe(partner_ids=partner_ids)
-        self.message_post(subject=message, body=message, partner_ids=partner_ids,subtype_xmlid="mail.mt_comment")
+        self.message_post(subject=message, body=message,
+                          partner_ids=partner_ids, subtype_xmlid="mail.mt_comment")
         return True
 
     #attachment = fields.Binary('Attachment', attachment=True)
@@ -291,22 +286,8 @@ class SprogroupPurchaseRequest(models.Model):
     #                 'datas': rec.attachment
     #             })
 
-
     def make_purchase_quotation(self):
         view_id = self.env.ref("purchase.purchase_order_form")
-
-        # vals = {
-        #     'partner_id': partner.id,
-        #     'picking_type_id': self.rule_id.picking_type_id.id,
-        #     'company_id': self.company_id.id,
-        #     'currency_id': partner.property_purchase_currency_id.id or self.env.user.company_id.currency_id.id,
-        #     'dest_address_id': self.partner_dest_id.id,
-        #     'origin': self.origin,
-        #     'payment_term_id': partner.property_supplier_payment_term_id.id,
-        #     'date_order': purchase_date.strftime(DEFAULT_SERVER_DATETIME_FORMAT),
-        #     'fiscal_position_id': fpos,
-        #     'group_id': group
-        # }
 
         order_line = []
         for line in self.line_ids:
@@ -339,12 +320,6 @@ class SprogroupPurchaseRequest(models.Model):
                 },
             )
             order_line.append(product_line)
-
-        # vals = {
-        #     'order_line' : order_line
-        # }
-        #
-        # po = self.env['purchase.order'].create(vals)
 
         return {
             "name": _("New Quotation"),
