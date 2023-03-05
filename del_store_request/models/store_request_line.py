@@ -38,7 +38,7 @@ class LineApprove(models.Model):
         ('available', 'Available'),
         ('awaiting', 'Awaiting Availability'),
     ]
-    state_main = fields.Selection(selection=REQUEST_STAGE, track_visibility='onchange',related='request_id.state', default ='draft')
+    state_main = fields.Selection(selection=REQUEST_STAGE, tracking=True,related='request_id.state', default ='draft')
     request_id = fields.Many2one('store.request', string='Request')
     product_id = fields.Many2one('product.product', string='Product')
     quantity = fields.Float(string='Quantity', default=1.0,readonly=False)

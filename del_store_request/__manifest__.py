@@ -15,7 +15,13 @@
     'category': 'Stock',
     'version': '0.1',
 
-    'depends': ['base', 'hr', 'product', 'stock','purchase'],
+    'depends': [
+        'base',
+        'hr',
+        'product',
+        'stock',
+        'purchase'
+    ],
 
 
     'data': [

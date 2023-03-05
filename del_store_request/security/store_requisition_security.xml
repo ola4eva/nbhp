@@ -3,23 +3,22 @@
 	<data>
 	    <record model="ir.module.category" id="store_requisition_security">
 	    	<field name="name">Material Requisition</field>
-<!--	    	<field name="sequence">204</field>-->
 	    </record>
 
 	    <record id="store_requisition_user" model="res.groups">
-	    	<field name="name" >Store User</field>
+	    	<field name="name">Store User</field>
 	    	<field name="category_id" ref="store_requisition_security"/>
 			<field name="implied_ids" eval="[(4, ref('base.group_user'))]" />
 	    </record>
 
 	    <record id="store_requisition_dept_manager" model="res.groups">
-	    	<field name="name" >Store Department Manager</field>
+	    	<field name="name">Store Department Manager</field>
 	    	<field name="category_id" ref="store_requisition_security"/>
 		<field name="implied_ids" eval="[(4, ref('store_requisition_user'))]" />
 	    </record>
 
 	    <record id="store_requisition_main_manager" model="res.groups">
-	    	<field name="name" >Store Main Manager</field>
+	    	<field name="name">Store Main Manager</field>
 	    	<field name="category_id" ref="store_requisition_security"/>
 		<field name="implied_ids" eval="[(4, ref('store_requisition_user'))]" />
 	    </record>
