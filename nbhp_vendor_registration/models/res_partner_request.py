@@ -62,7 +62,7 @@ class ResPartnerRequest(models.Model):
             'name': " ".join(self._get_name_list()),
             'phone': self.phone,
             'email': self.email,
-            'street': self.street2,
+            'street': self.street,
             'city': self.city,
             'state_id': self.state_id and self.state_id.id,
             'country_id': self.country_id and self.country_id.id,
