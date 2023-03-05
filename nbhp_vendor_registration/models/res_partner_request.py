@@ -60,9 +60,9 @@ class ResPartnerRequest(models.Model):
     def _create_vendor(self):
         values = {
             'name': " ".join(self._get_name_list()),
-            'phone': self.lastname,
+            'phone': self.phone,
             'email': self.email,
-            'street': self.street,
+            'street': self.street2,
             'city': self.city,
             'state_id': self.state_id and self.state_id.id,
             'country_id': self.country_id and self.country_id.id,
