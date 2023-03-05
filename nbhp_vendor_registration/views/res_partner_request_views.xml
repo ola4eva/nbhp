@@ -35,8 +35,7 @@
               groups="nbhp_vendor_registration.group_vendor_reg_manager" class="btn-danger"
               states="confirm" />
             <button name="reset" type="object" string="Reset"
-              groups="nbhp_vendor_registration.group_vendor_reg_manager" class="btn-danger"
-              states="approve,reject" />
+              groups="nbhp_vendor_registration.group_vendor_reg_manager" class="btn-danger" invisible="1"/>
             <field name="state" widget="statusbar" statusbar_visible="draft,confirm,approve" />
           </header>
           <sheet>

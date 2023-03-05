@@ -13,22 +13,22 @@ class ResPartnerRequest(models.Model):
 
     name = fields.Char(string='Name', default="/",
                        readonly=True, compute="_compute_name")
-    firstname = fields.Char('Firstname')
-    lastname = fields.Char('Lastname')
-    othername = fields.Char('Othername')
-    email = fields.Char('Email')
-    phone = fields.Char('Phone', required=True)
-    date_of_birth = fields.Date('Date of Birth')
-    street = fields.Char('Street')
-    zipcode = fields.Char('Zip code')
+    firstname = fields.Char('Firstname', readonly=True, states={'draft':[('readonly', False)]})
+    lastname = fields.Char('Lastname', readonly=True, states={'draft':[('readonly', False)]})
+    othername = fields.Char('Othername', readonly=True, states={'draft':[('readonly', False)]})
+    email = fields.Char('Email', readonly=True, states={'draft':[('readonly', False)]})
+    phone = fields.Char('Phone', required=True, readonly=True, states={'draft':[('readonly', False)]})
+    date_of_birth = fields.Date('Date of Birth', readonly=True, states={'draft':[('readonly', False)]})
+    street = fields.Char('Street', readonly=True, states={'draft':[('readonly', False)]})
+    zipcode = fields.Char('Zip code', readonly=True, states={'draft':[('readonly', False)]})
     gender = fields.Selection([
         ('male', 'Male'),
         ('female', 'Female'),
         ('other', 'Other'),
-    ], string='Gender')
-    city = fields.Char('City')
-    state_id = fields.Many2one('res.country.state', string='State')
-    country_id = fields.Many2one('res.country', string='Country')
+    ], string='Gender', readonly=True, states={'draft':[('readonly', False)]})
+    city = fields.Char('City', readonly=True, states={'draft':[('readonly', False)]})
+    state_id = fields.Many2one('res.country.state', string='State', readonly=True, states={'draft':[('readonly', False)]})
+    country_id = fields.Many2one('res.country', string='Country', readonly=True, states={'draft':[('readonly', False)]})
     state = fields.Selection([
         ('draft', 'New'),
         ('confirm', 'Confirmed'),
@@ -39,7 +39,7 @@ class ResPartnerRequest(models.Model):
     vendor_type = fields.Selection([
         ('person', "Individual"),
         ('company', "Company"),
-    ], string="Individual/Company", required=True)
+    ], string="Individual/Company", required=True, readonly=True, states={'draft':[('readonly', False)]})
 
     def submit(self):
         self.state = 'confirm'
@@ -62,7 +62,7 @@ class ResPartnerRequest(models.Model):
             'name': " ".join(self._get_name_list()),
             'phone': self.phone,
             'email': self.email,
-            'street': self.street,
+            'street2': self.street,
             'city': self.city,
             'state_id': self.state_id and self.state_id.id,
             'country_id': self.country_id and self.country_id.id,
