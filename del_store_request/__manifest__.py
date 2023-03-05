@@ -33,5 +33,6 @@
         'data/mail_template.xml',
         'data/sequence.xml',
         'wizards/ir_request.xml',
+        'wizards/do_reject_views.xml',
     ],
 }

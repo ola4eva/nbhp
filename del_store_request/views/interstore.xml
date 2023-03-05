@@ -6,7 +6,7 @@
             <field name="name">Material Requisition</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">store.request</field>
-            <field name="context">{'default_kkk': 1}</field>
+            <field name="context">{'default_internal_request': 1}</field>
             <field name="view_mode">tree,form</field>
         </record>
 

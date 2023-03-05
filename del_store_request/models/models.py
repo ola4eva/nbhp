@@ -19,18 +19,17 @@ class StoreRequest(models.Model):
     REQUEST_STAGE = [
         ('draft', 'Draft'),
         ('submit', 'Department Manager'),
-        ('approved', 'Central Warehouse Manager Approval'),
-        ('approval', 'Warehouse Owner'),
+        ('approved', 'Warehouse Officer'),
         ('transfer', 'Transfer'),
         ('done', 'Done'),
-        ('receive', 'Received')
+        ('receive', 'Received'),
+        ('reject', 'Rejected'),
     ]
 
     def _current_login_employee(self):
         """Get the employee record related to the current login user."""
         hr_employee = self.env['hr.employee'].sudo().search(
             [('user_id', '=', self.env.user.id)])
-        print("&&&&&&& ---------------- &&&&&&&&&&", hr_employee)
         return hr_employee and hr_employee.id
 
     @api.onchange('end_user')
@@ -59,16 +58,16 @@ class StoreRequest(models.Model):
                                       help='Departmental Stock Location', tracking=True, required=False,
                                       domain=[('usage', '!=', 'view')])
     src_location_id = fields.Many2one('stock.location', string='Source Location',
-                                      help='Departmental Stock Location', tracking=True, default=lambda self: self.env.user.company_id.source_location if (self.kkk == True) else None)
-    kkk = fields.Boolean("Internal  Request")
+                                      help='Departmental Stock Location', tracking=True, default=lambda self: self.env.user.company_id.source_location if (self.internal_request == True) else None)
+    internal_request = fields.Boolean("Internal  Request")
 
     approve_request_ids = fields.One2many(
         'store.request.approve', 'request_id', string='Request Line', required=True, readonly=True, states={'draft': [('readonly', False)]})
     reason = fields.Text(string='Rejection Reason')
-    availaibility = fields.Boolean(
-        string='Availaibility', compute='_compute_availabilty')
+    availability = fields.Boolean(
+        string='availability', compute='_compute_availabilty')
     warehouse_id = fields.Many2one('stock.warehouse', string='Warehouse',
-                                   default=lambda self: self.env.user.company_id.warehouse_id if (self.kkk == True) else None)
+                                   default=lambda self: self.env.user.company_id.warehouse_id if (self.internal_request == True) else None)
     company_id = fields.Many2one(
         'res.company', string='Company', index=True, default=lambda self: self.env.company)
 
@@ -82,7 +81,7 @@ class StoreRequest(models.Model):
         count_total = len(self.approve_request_ids)
         count_avail = len(
             [appr_id.state for appr_id in self.approve_request_ids if appr_id.state == 'available'])
-        self.availaibility = count_total == count_avail
+        self.availability = count_total == count_avail
 
     def submit(self):
         seq = self.env['ir.sequence'].next_by_code('store.request')
@@ -117,7 +116,7 @@ class StoreRequest(models.Model):
                 'del_store_request.store_requisition_warehouse_officer')
             mail_template.with_context({'recipient': recipient, 'url': url}).send_mail(
                 self.id, force_send=True)
-            self.write({'state': 'approval'})
+            self.write({'state': 'transfer'})
 
     def warehouse_officer_confirm_qty(self):
         for con in self.approve_request_ids:
@@ -273,3 +272,31 @@ class StoreRequest(models.Model):
         # query = {'db': self.env.cr.dbname}
         # res = urljoin(base_url, "?%s#%s" % (urlencode(query), urlencode(fragment)))
         # return res
+
+    def department_manager_reject(self):
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'material.request.reject',
+            'context': {'default_material_request_id': self.id},
+            'view_mode': 'form',
+            'target': 'new',
+        }
+    
+    def warehouse_officer_reject(self):
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'material.request.reject',
+            'context': {'default_material_request_id': self.id},
+            'view_mode': 'form',
+            'target': 'new',
+        }
+    
+    def post_reject_message(self, reason):
+        for record in self:
+            body = f"<h3>Subject: Material Requisition rejected by {self.env.user.name}<h3>\n<h4>Reason: {reason}</h4>"
+            record.message_post(
+                body=body,
+                message_type='notification',
+                subtype_xmlid='mail.mt_note'
+            )
+        return record.update({'state': 'reject'})
