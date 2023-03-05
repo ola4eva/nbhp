@@ -12,11 +12,7 @@
       </field>
     </record>
 
-
-
-
     <!-- explicit list view definition -->
-
     <record model="ir.ui.view" id="store_requisition_list">
       <field name="name">Material Requisition</field>
       <field name="model">store.request</field>
@@ -61,15 +57,15 @@
                 <field name="company_id" readonly="1"/>
                 <field name="request_date" required="1" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                 <field name="request_deadline" required="1" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
-                <field name="internal_request" invisible="0" />
+                <field name="internal_request" invisible="0" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
               </group>
               <group>
                 <field name="hod" attrs="{'readonly': [('state', '!=', 'draft')]}" invisible="1" />
                 <field name="department" attrs="{'readonly': [('state', '!=', 'draft')]}" invisible="1" />
                 <field name="warehouse_id" attrs="{'required' : [('state', '=', 'warehouse')],'readonly' : [('state', '!=', 'draft')]}"/>
                 <field name="src_location_id" domain="[('usage', '=', 'internal')]" attrs="{'required' : [('state', '=', 'warehouse')],'readonly' : [('state', '!=', 'draft')]}"/>
-                <field name="dst_location_id" attrs="{'required' : [('state', '=', 'warehouse')]}" />
-                <field name="transit_location_id" invisible="0" readonly="1"/>
+                <field name="dst_location_id" attrs="{'required' : [('state', '=', 'warehouse')], 'readonly': [('state', '!=', 'draft')]}"/>
+                <field name="transit_location_id" invisible="0" readonly="1" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                 <field name="stock_picking_type" invisible="1" />
               </group>
             </group>
@@ -90,7 +86,6 @@
                     <field name="to_procure" invisible="1"/>
                     <field name="transferred" readonly="1"/>
                     <button name="procure" type="object" string="Procure" class="oe_link" attrs="{'invisible': ['|', ('to_procure', '!=', True), ('transferred', '=', True)]}" groups="del_store_request.store_requisition_stock_officer"/>
-
                   </tree>
                 </field>
               </page>
