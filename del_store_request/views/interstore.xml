@@ -3,15 +3,15 @@
     <data>
 
         <record id="internal_store_action" model="ir.actions.act_window">
-            <field name="name">Internal Store Request</field>
+            <field name="name">Material Requisition</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">store.request</field>
-             <field name="context">{'default_kkk': 1}</field>
+            <field name="context">{'default_kkk': 1}</field>
             <field name="view_mode">tree,form</field>
         </record>
 
-<!-- This Menu Item must have a parent and an action -->
-<menuitem id="UNIQUE_ID_categ_internal_store_distribution" parent="store_requisition_menu_root" action="internal_store_action" sequence="2"/>
+        <!-- This Menu Item must have a parent and an action -->
+        <menuitem id="UNIQUE_ID_categ_internal_store_distribution" parent="store_requisition_menu_root" action="internal_store_action" sequence="2"/>
 
     </data>
 </odoo>

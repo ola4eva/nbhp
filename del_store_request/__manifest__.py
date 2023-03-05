@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "del_store_request",
+    'name': "Material Requisition",
 
     'summary': """
-        Short (1 phrase/line) summary of the module's purpose, used as
-        subtitle on modules listing or apps.openerp.com""",
+        Material requisition module...""",
 
     'description': """
-        Long description of module's purpose
+        Material requisition module...
     """,
 
     'author': "My Company",

@@ -2,7 +2,7 @@
 <odoo>
 	<data>
 	    <record model="ir.module.category" id="store_requisition_security">
-	    	<field name="name">Store Requisition</field>
+	    	<field name="name">Material Requisition</field>
 <!--	    	<field name="sequence">204</field>-->
 	    </record>
 
@@ -32,7 +32,7 @@
 	    
 		<!-- Departmental manager see own department's records -->
 	    <record model="ir.rule" id="store_requisition_comp_manager_rule">
-	    	<field name="name">Store Requisition Department Rule</field>
+	    	<field name="name">Material Requisition Department Rule</field>
 	    	<field name="model_id" ref="model_store_request"/>
 	    	<field name="global" eval="False"/>
 			<field name="groups" eval="[(4, ref('store_requisition_dept_manager'))]" />
@@ -42,7 +42,7 @@
 
 	    <!--  -->
 	    <record model="ir.rule" id="store_requsition_comp_manager_rule">
-	    	<field name="name">Store Requisition Manager See All</field>
+	    	<field name="name">Material Requisition Manager See All</field>
 	    	<field name="model_id" ref="model_store_request"/>
 	    	<field name="global" eval="False"/>
 		<field name="groups" eval="[(4, ref('store_requisition_main_manager'))]" />

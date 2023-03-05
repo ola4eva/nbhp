@@ -2,7 +2,7 @@
 <odoo>
 	<data>
 		<record model="ir.ui.view" id="store_requisition_wizard">
-			<field name="name">Store Requisition wizard</field>
+			<field name="name">Material Requisition wizard</field>
 			<field name="model">store.wizard</field>
 			<field name="arch" type="xml">
 				<form>

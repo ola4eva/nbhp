@@ -9,7 +9,7 @@
         </record> -->
 
         <record id="store_internal_requisition_seq" model="ir.sequence">
-            <field name="name">Store Requisition</field>
+            <field name="name">Material Requisition</field>
             <field name="code">store.request</field>
             <field name="prefix">SR/%(year)s/</field>
             <field name="padding">4</field>

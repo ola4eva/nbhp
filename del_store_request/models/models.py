@@ -11,7 +11,7 @@ from odoo.exceptions import UserError,ValidationError
 class StoreRequest(models.Model):
     _name = 'store.request'
     _inherit = ['mail.thread']
-    _description = "Store Requisition"
+    _description = "Material Requisition"
     _order = 'create_date desc, state desc, write_date desc'
 
     def _current_login_user(self):
