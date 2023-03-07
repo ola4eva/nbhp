@@ -14,15 +14,15 @@
                         <button name="action_cancel" states="draft" string="Cancel" type="object" class="oe_highlight" />
 
                         <!-- Department manager -->
-                        <button name="action_approve" string="Approve" groups="ng_payment_request.department_manager" type="object" class="oe_highlight" states="awaiting_approval" />
+                        <button name="action_approve" string="Manager Approval" groups="ng_payment_request.department_manager" type="object" class="oe_highlight" states="awaiting_approval" />
                         <button name="action_refuse" string="Refuse" groups="ng_payment_request.department_manager" class="btn-danger" type="object" states="awaiting_approval" />
 
                         <!-- General manager -->
-                        <button name="action_gm_approve" groups="ng_payment_request.general_manager" string="GM Approve" type="object" class="oe_highlight" states="mgr_approve" />
+                        <button name="action_gm_approve" groups="ng_payment_request.general_manager" string="Admin Approval" type="object" class="oe_highlight" states="mgr_approve" />
                         <button name="action_refuse" string="Refuse" groups="ng_payment_request.general_manager" class="btn-danger" type="object" states="mgr_approve" />
 
                         <!-- Managing Director -->
-                        <button name="action_md_approve" groups="ng_payment_request.managing_director" string="MD Approve" type="object" class="oe_highlight" states="gm_approve" />
+                        <button name="action_md_approve" groups="ng_payment_request.managing_director" string="CEO Approval" type="object" class="oe_highlight" states="gm_approve" />
                         <button name="action_refuse" string="Refuse" groups="ng_payment_request.managing_director" class="btn-danger" type="object" states="gm_approve" />
 
                         <!-- Accounting Advisor group -->
