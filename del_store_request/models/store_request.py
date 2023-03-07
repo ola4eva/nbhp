@@ -37,22 +37,23 @@ class StoreRequest(models.Model):
         if self.end_user:
             self.hod = self.end_user.department_id.manager_id.id
 
-    name = fields.Char(string='Number', default='/', readonly=True, states={'draft': [('readonly', False)]})
+    name = fields.Char(string='Number', default='/',
+                       readonly=True, states={'draft': [('readonly', False)]})
     state = fields.Selection(selection=REQUEST_STAGE,
                              default='draft', tracking=True)
     requester = fields.Many2one('res.users', string='Requester', default=_current_login_user,
                                 tracking=True, readonly=True, states={'draft': [('readonly', False)]})
     end_user = fields.Many2one(
-        'hr.employee', string='End User', required=True, 
+        'hr.employee', string='End User', required=True,
         default=_current_login_employee
-        )
+    )
     request_date = fields.Datetime(string='Request Date', default=lambda self: datetime.now(),
                                    help='The day in which request was initiated')
     request_deadline = fields.Datetime(string='Request Deadline')
     hod = fields.Many2one('hr.employee', string='H.O.D', store=True)
     department = fields.Many2one(
-        'hr.department', 
-        related='end_user.department_id', 
+        'hr.department',
+        related='end_user.department_id',
         string='Department')
     dst_location_id = fields.Many2one('stock.location', string='Destination Location',
                                       help='Departmental Stock Location', tracking=True, required=False,
@@ -71,10 +72,26 @@ class StoreRequest(models.Model):
     company_id = fields.Many2one(
         'res.company', string='Company', index=True, default=lambda self: self.env.company)
 
-    transit_location_id = fields.Many2one('stock.location', string="Transit Location", domain=[('usage', '=', 'transit')],
-                                          default=lambda self: self.env.user.company_id.transit_location)
+    transit_location_id = fields.Many2one('stock.location', string="Transit Location", domain="[('usage', '=', 'transit')]", 
+                                          compute="_get_transit_location", store=True)
     stock_picking_type = fields.Many2one(
         'stock.picking.type', string="Stock Picking Type", default=lambda self: self.env.user.company_id.stock_picking_type)
+
+    @api.depends('dst_location_id')
+    def _get_transit_location(self):
+        Location = self.env['stock.location'].sudo()
+        transit_location_id = Location
+        if self.dst_location_id:
+            dst_transit_id = Location.search(
+                [('location_id', '=', self.dst_location_id.id), ('usage', '=', 'transit'), ('company_id', '=', self.company_id.id)], limit=1)
+            if dst_transit_id:
+                transit_location_id = dst_transit_id.id
+                self.transit_location_id = transit_location_id
+            # return {
+            #     'value': {
+            #         'transit_location_id': transit_location_id
+            #     }
+            # }
 
     @api.depends('approve_request_ids')
     def _compute_availabilty(self):
@@ -120,6 +137,7 @@ class StoreRequest(models.Model):
 
     def warehouse_officer_confirm_qty(self):
         for con in self.approve_request_ids:
+            con._compute_qty()
             if con.qty >= con.quantity:
                 raise ValidationError("Requested Quantity Available")
             elif con.qty < con.quantity:
@@ -167,27 +185,25 @@ class StoreRequest(models.Model):
     def do_transfer(self):
         if not self.transit_location_id:
             raise ValidationError("Pls select a Transit Location")
-        if self:
-            src_location_id = self.src_location_id.id
-            transit_location_id = self.transit_location_id.id
-            domain = [
-                ('code', '=', 'internal'),
-                ('warehouse_id', '=', self.warehouse_id.id),
-                ('active', '=', True)
-            ]
-            stock_picking = self.env['stock.picking']
-            picking_type = self.env['stock.picking.type'].search(
-                domain, limit=1)
-            print(picking_type)
-            payload = {
-                'location_id': src_location_id,
-                'location_dest_id': transit_location_id,
-                'picking_type_id': picking_type.id
-            }
-            stock_picking_id = stock_picking.create(payload)
-            stock_picking_id.action_confirm()
-            stock_picking_id.action_set_quantities_to_reservation()
-            stock_picking_id.button_validate()
+        src_location_id = self.src_location_id.id
+        transit_location_id = self.transit_location_id.id
+        domain = [
+            ('code', '=', 'internal'),
+            ('warehouse_id', '=', self.warehouse_id.id),
+            ('active', '=', True)
+        ]
+        stock_picking = self.env['stock.picking']
+        picking_type = self.env['stock.picking.type'].search(
+            domain, limit=1)
+        payload = {
+            'location_id': src_location_id,
+            'location_dest_id': transit_location_id,
+            'picking_type_id': picking_type.id
+        }
+        stock_picking_id = stock_picking.create(payload)
+        stock_picking_id.action_confirm()
+        stock_picking_id.action_set_quantities_to_reservation()
+        stock_picking_id.button_validate()
 
     def stock_move(self, request_ids, picking_id):
         """."""
@@ -257,21 +273,6 @@ class StoreRequest(models.Model):
 
     def request_link(self):
         pass
-        # fragment = {}
-        # base_url = self.env['ir.config_parameter'].get_param('web.base.url')
-        # model_data = self.env['ir.model.data']
-        # fragment.update(base_url=base_url)
-        # fragment.update(
-        #     menu_id=model_data.get_object_reference('del_store_request', 'store_requisition_menu_1')[-1])
-        # fragment.update(model='store.request')
-        # fragment.update(view_type='form')
-        # fragment.update(
-        #     action=model_data.get_object_reference('del_store_request', 'store_action_window')[
-        #         -1])
-        # fragment.update(id=self.id)
-        # query = {'db': self.env.cr.dbname}
-        # res = urljoin(base_url, "?%s#%s" % (urlencode(query), urlencode(fragment)))
-        # return res
 
     def department_manager_reject(self):
         return {
@@ -281,7 +282,7 @@ class StoreRequest(models.Model):
             'view_mode': 'form',
             'target': 'new',
         }
-    
+
     def warehouse_officer_reject(self):
         return {
             'type': 'ir.actions.act_window',
@@ -290,7 +291,7 @@ class StoreRequest(models.Model):
             'view_mode': 'form',
             'target': 'new',
         }
-    
+
     def post_reject_message(self, reason):
         for record in self:
             body = f"<h3>Subject: Material Requisition rejected by {self.env.user.name}<h3>\n<h4>Reason: {reason}</h4>"
