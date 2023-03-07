@@ -140,13 +140,13 @@ class payment_request(models.Model):
 
         if self.amount_company_currency <= self.company_id.min_amount:
             body = _(
-                'Payment request %s has been confirmed. Please check and approve.' % (self.name))
+                'Payment request %s has been submitted for your approval. Please check and approve.' % (self.name))
             self.notify(body=body, users=[
                         self.department_id.manager_id.user_id.partner_id.id], group=False)
         else:
             self.need_gm_approval = True
             body = _(
-                'Payment request %s has been approved. Please provide second approval.' % (self.name))
+                'Payment request %s has been approved by the department Manager. Please provide second approval.' % (self.name))
             self.notify(body=body, users=[],
                         group='ng_payment_request.general_manager')
         self.state = 'awaiting_approval'
@@ -163,7 +163,7 @@ class payment_request(models.Model):
         # self.need_gm_approval = True
         self.state = 'mgr_approve'
         body = _(
-            'Payment request %s has been approved. Please provide second approval.' % (self.name))
+            'Payment request %s has been approved by admin. Please provide the final approval.' % (self.name))
         self.notify(body=body, users=[],
                     group='ng_payment_request.general_manager')
         # else:
