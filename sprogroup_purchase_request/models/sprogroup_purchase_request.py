@@ -56,13 +56,13 @@ class SprogroupPurchaseRequest(models.Model):
         tracking=True,
     )
     date_start = fields.Date(
-        "Start date",
+        "Request date",
         help="Date when the user initiated the request.",
         default=fields.Date.context_today,
         tracking=True,
     )
     end_start = fields.Date(
-        "End date",
+        "Due date",
         default=fields.Date.context_today,
         tracking=True,
     )

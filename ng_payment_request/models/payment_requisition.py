@@ -15,7 +15,7 @@ class AccountMoveInherit(models.Model):
 
 class payment_request_line(models.Model):
     _name = "payment.requisition.line"
-    _description = "Payment Requisition Line"
+    _description = "Cash Requisition Line"
 
     @api.depends('payment_request_id')
     def check_state(self):
@@ -44,7 +44,7 @@ class payment_request_line(models.Model):
 class payment_request(models.Model):
     _inherit = ['mail.thread']
     _name = "payment.requisition"
-    _description = 'Payment Requisition'
+    _description = 'Cash Requisition'
 
     @api.depends('request_line', 'request_line.request_amount', 'request_line.approved_amount')
     def _compute_requested_amount(self):
@@ -85,12 +85,16 @@ class payment_request(models.Model):
                                   default=lambda self: self.env.user.company_id.currency_id.id)
     company_id = fields.Many2one('res.company', 'Company', required=True,
                                  default=lambda self: self.env['res.company']._company_default_get('payment.requisition'))
-    state = fields.Selection([('draft', 'Draft'),
-                              ('awaiting_approval', 'Awaiting Approval'),
-                              ('approved', 'Approved'),
-                              ('paid', 'Paid'),
-                              ('refused', 'Refused'),
-                              ('cancelled', 'Cancelled')], tracking=True, default="draft", string="State")
+    state = fields.Selection([
+        ('draft', 'Draft'),
+        ('awaiting_approval', 'Awaiting Approval'),
+        ('mgr_approve', 'GM To Approve'),
+        ('gm_approve', 'MD To Approve'),
+        ('approved', 'Approved'),
+        ('paid', 'Paid'),
+        ('refused', 'Refused'),
+        ('cancelled', 'Cancelled')
+    ], tracking=True, default="draft", string="State")
     need_gm_approval = fields.Boolean(
         'Needs First Approval?', copy=False, readonly=True)
     need_md_approval = fields.Boolean(
@@ -127,11 +131,11 @@ class payment_request(models.Model):
 
     def action_confirm(self):
         if not self.request_line:
-            raise exceptions.Warning(
+            raise exceptions.UserError(
                 _('Can not confirm request without request lines.'))
 
         if not self.department_id.manager_id:
-            raise exceptions.Warning(
+            raise exceptions.UserError(
                 _('Please contact HR to setup a manager for your department.'))
 
         if self.amount_company_currency <= self.company_id.min_amount:
@@ -151,24 +155,25 @@ class payment_request(models.Model):
     def action_approve(self):
         for line in self.request_line:
             if line.approved_amount <= 0.0:
-                raise exceptions.Warning(
+                raise exceptions.UserError(
                     _('Approved amount cannot be less then or equal to Zero.'))
-                # raise Warning(_('Approved amount cannot be less then or equal to Zero.'))
+                # raise UserError(_('Approved amount cannot be less then or equal to Zero.'))
         # or self.amount_company_currency <= company.max_amount
-        if self.amount_company_currency > self.company_id.min_amount:
-            self.need_gm_approval = True
-            body = _(
-                'Payment request %s has been approved. Please provide second approval.' % (self.name))
-            self.notify(body=body, users=[],
-                        group='ng_payment_request.general_manager')
-        else:
-            self.state = 'approved'
-            body = _('Your request %s has been approved.' % (self.name))
-            self.notify(body=body, users=[
-                        self.employee_id.user_id.partner_id.id])
-            body = _(
-                'Payment request %s has been approved. Please proceed with the payment.' % (self.name))
-            self.notify(body=body, group='account.group_account_manager')
+        # if self.amount_company_currency > self.company_id.min_amount:
+        # self.need_gm_approval = True
+        self.state = 'mgr_approve'
+        body = _(
+            'Payment request %s has been approved. Please provide second approval.' % (self.name))
+        self.notify(body=body, users=[],
+                    group='ng_payment_request.general_manager')
+        # else:
+        # self.state = 'approved'
+        # body = _('Your request %s has been approved.' % (self.name))
+        # self.notify(body=body, users=[
+        #             self.employee_id.user_id.partner_id.id])
+        body = _(
+            'Payment request %s has been approved. Please proceed with the payment.' % (self.name))
+        self.notify(body=body, group='account.group_account_manager')
         emp = self.env['hr.employee'].search(
             [('user_id', '=', self._uid)], limit=1)
         self.dept_manager_id = emp.id
@@ -178,23 +183,23 @@ class payment_request(models.Model):
     def action_gm_approve(self):
         for line in self.request_line:
             if line.approved_amount <= 0.0:
-                raise exceptions.Warning(
+                raise exceptions.UserError(
                     _('Approved amount cannot be less then or equal to Zero.'))
-        if self.amount_company_currency > self.company_id.max_amount:
-            self.need_md_approval = True
-            body = _(
-                'Payment request %s has been approved. Please provide final approval.' % (self.name))
-            self.notify(
-                body=body, group='ng_payment_request.managing_director')
-        else:
-            self.state = 'approved'
-            body = _('Your request %s has been approved.' % (self.name))
-            self.notify(body=body, users=[
-                        self.employee_id.user_id.partner_id.id])
-            body = _(
-                'Payment request %s has been approved. Please proceed with the payment.' % (self.name))
-            self.notify(body=body, group='account.group_account_manager')
-
+        # if self.amount_company_currency > self.company_id.max_amount:
+        self.need_md_approval = True
+        body = _(
+            'Payment request %s has been approved. Please provide final approval.' % (self.name))
+        self.notify(
+            body=body, group='ng_payment_request.managing_director')
+        # else:
+        #     self.state = 'approved'
+        #     body = _('Your request %s has been approved.' % (self.name))
+        #     self.notify(body=body, users=[
+        #                 self.employee_id.user_id.partner_id.id])
+        #     body = _(
+        #         'Payment request %s has been approved. Please proceed with the payment.' % (self.name))
+        #     self.notify(body=body, group='account.group_account_manager')
+        self.state = 'gm_approve'
         emp = self.env['hr.employee'].search(
             [('user_id', '=', self._uid)], limit=1)
         self.general_manager_id = emp.id
@@ -259,7 +264,7 @@ class payment_request(models.Model):
             journal_id = record.journal_id.id
             partner_id = record.employee_id.address_home_id
             if not partner_id:
-                raise exceptions.Warning(
+                raise exceptions.UserError(
                     _('Please specify Employee Home Address in the Employee Form!.'))
 
             move_line_vals = []
@@ -320,7 +325,7 @@ class payment_request(models.Model):
                 amount = -1 * record.approved_amount
                 account = record.journal_id.default_debit_account_id.id
                 if not record.journal_id.type == 'cash':
-                    raise exceptions.Warning(
+                    raise exceptions.UserError(
                         _('Journal should match with selected cash register journal.'))
                 stline_vals = {
                     'name': record.name or '?',

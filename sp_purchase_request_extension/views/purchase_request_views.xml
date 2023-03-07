@@ -1,0 +1,13 @@
+<odoo>
+    <data>
+
+    <record id="purchase__inherit_module_name" model="ir.ui.view">
+      <field name="name">sprogroup.purchase.request.view.form.inherit</field>
+      <field name="model">sprogroup.purchase.request</field>
+      <field name="inherit_id" ref="sprogroup_purchase_request.view_sprogroup_purchase_request_form"/>
+      <field name="arch" type="xml">
+        
+      </field>
+    </record>
+    </data>
+</odoo>

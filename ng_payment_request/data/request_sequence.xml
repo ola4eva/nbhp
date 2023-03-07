@@ -3,7 +3,7 @@
     <data noupdate="1">
 
         <record id="seq_payment_request" model="ir.sequence">
-            <field name="name">Payment Requisition</field>
+            <field name="name">Cash Requisition</field>
             <field name="code">payment.requisition</field>
             <field name="prefix">PAYR/</field>
             <field name="padding">3</field>
