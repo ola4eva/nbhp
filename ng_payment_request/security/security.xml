@@ -3,7 +3,7 @@
     <data noupdate="1">
 
         <record id="payment_requisition_category" model="ir.module.category">
-            <field name="name">Payment Requisition</field>
+            <field name="name">Cash Requisition</field>
             <field name="sequence" eval="1"/>
         </record>
 
@@ -34,14 +34,14 @@
         <!--  Security Rules -->
 
         <record id="property_rule_pr_employees" model="ir.rule">
-            <field name="name">Payment Requisition - Employee</field>
+            <field name="name">Cash Requisition - Employee</field>
             <field name="model_id" ref="model_payment_requisition" />
             <field name="domain_force">[('employee_id.user_id.id','=',user.id)]</field>
             <field name="groups" eval="[(4,ref('base.group_user'))]" />
         </record>
 
         <record id="property_rule_pr_dm_managers" model="ir.rule">
-            <field name="name">Payment Requisition - DManagers</field>
+            <field name="name">Cash Requisition - DManagers</field>
             <field name="model_id" ref="model_payment_requisition" />
             <field name="domain_force">[('department_id.manager_id.user_id.id','=',user.id)]</field>
             <field name="groups" eval=" [(4,ref('department_manager'))]" />
@@ -55,21 +55,21 @@
         </record>
 
         <record id="property_rule_pr_gm_managers" model="ir.rule">
-            <field name="name">Payment Requisition - GManagers</field>
+            <field name="name">Cash Requisition - GManagers</field>
             <field name="model_id" ref="model_payment_requisition" />
             <field name="domain_force">[(1,'=',1)]</field>
             <field name="groups" eval=" [(4,ref('general_manager'))]" />
         </record>
 
         <record id="property_rule_pr_md_managers" model="ir.rule">
-            <field name="name">Payment Requisition - MDManagers</field>
+            <field name="name">Cash Requisition - MDManagers</field>
             <field name="model_id" ref="model_payment_requisition" />
             <field name="domain_force">[(1,'=',1)]</field>
             <field name="groups" eval=" [(4,ref('managing_director'))]" />
         </record>
 
         <record id="property_rule_pr_am_managers" model="ir.rule">
-            <field name="name">Payment Requisition - AManagers</field>
+            <field name="name">Cash Requisition - AManagers</field>
             <field name="model_id" ref="model_payment_requisition" />
             <field name="domain_force">[(1,'=',1)]</field>
             <field name="groups" eval=" [(4,ref('account.group_account_user'))]" />
