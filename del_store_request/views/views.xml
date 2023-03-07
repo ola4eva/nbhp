@@ -37,7 +37,7 @@
             <button name="department_manager_approve" states="submit" string="Approve" type="object" groups="del_store_request.store_requisition_dept_manager" />
             <button name="department_manager_reject" states="submit" string="Reject" type="object" groups="del_store_request.store_requisition_dept_manager" />
             <button name="warehouse_officer_confirm" string="Confirm" type="object" groups="del_store_request.store_requisition_stock_officer" class="oe_highlight" attrs="{'invisible': ['|', ('availability', '=', False), ('state', 'not in',['approved'] )]}"/>
-            <button name="warehouse_officer_reject" string="Reject" type="object" groups="del_store_request.store_requisition_stock_officer" />
+            <button name="warehouse_officer_reject" states="approved" string="Reject" type="object" groups="del_store_request.store_requisition_stock_officer" />
             <button name="warehouse_officer_confirm_qty" states="approved" string="Confirm Qty on Hand" type="object" groups="del_store_request.store_requisition_stock_officer" class="oe_highlight"/>
             <button name="do_transfer" states="transfer" string="Process the transfer" class="oe_highlight" type="object" groups="del_store_request.store_requisition_stock_officer"/>
             <button name="do_transfer_receive" states="done" string="Receive" class="oe_highlight" type="object"/>
@@ -81,11 +81,11 @@
                     <field name="quantity" attrs="{'readonly': [('state_main', 'not in', ['draft','approved','warehouse','submit'])]}"/>
                     <field name="uom"/>
                     <field name="qty"/>
-                    <field name="received_qty"/>
+                    <field name="received_qty" attrs="{'readonly': [('state_main', 'not in', ['draft', 'done'])]}" />
                     <field name="state" invisible="0"/>
-                    <field name="to_procure" invisible="1"/>
+                    <field name="to_procure" invisible="1" />
                     <field name="transferred" readonly="1"/>
-                    <button name="procure" type="object" string="Procure" class="oe_link" attrs="{'invisible': ['|', ('to_procure', '!=', True), ('transferred', '=', True)]}" groups="del_store_request.store_requisition_stock_officer"/>
+                    <button name="procure" type="object" string="Procure" class="oe_link" attrs="{'invisible': ['|', ('to_procure', '!=', True), '|', ('transferred', '=', True), ('state_main', '!=', 'approved')]}" groups="del_store_request.store_requisition_stock_officer"/>
                   </tree>
                 </field>
               </page>

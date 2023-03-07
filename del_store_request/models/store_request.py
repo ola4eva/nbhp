@@ -63,7 +63,7 @@ class StoreRequest(models.Model):
     internal_request = fields.Boolean("Internal  Request")
 
     approve_request_ids = fields.One2many(
-        'store.request.approve', 'request_id', string='Request Line', required=True, readonly=True, states={'draft': [('readonly', False)]})
+        'store.request.approve', 'request_id', string='Request Line', required=True, readonly=True, states={'draft': [('readonly', False)], 'done': [('readonly', False)]})
     reason = fields.Text(string='Rejection Reason')
     availability = fields.Boolean(
         string='availability', compute='_compute_availabilty')
@@ -87,11 +87,6 @@ class StoreRequest(models.Model):
             if dst_transit_id:
                 transit_location_id = dst_transit_id.id
                 self.transit_location_id = transit_location_id
-            # return {
-            #     'value': {
-            #         'transit_location_id': transit_location_id
-            #     }
-            # }
 
     @api.depends('approve_request_ids')
     def _compute_availabilty(self):
@@ -154,12 +149,16 @@ class StoreRequest(models.Model):
         for con in self.approve_request_ids:
             if not con.received_qty:
                 raise ValidationError("Quantity received not entered")
+            # if con.quantity >con.received_qty:
+                # raise ValidationError("Quantity Received must be equal to  Quantity  Requested")
+
         if self.requester.id != self.env.user.id:
-            print(self.env.user.id, self.requester.id)
+            print(self.env.user.id,self.requester.id)
             raise ValidationError('You are not the Requester')
         if not self.dst_location_id:
             raise ValidationError("Pls select a Destination Location")
         if self:
+            src_location_id = self.src_location_id.id
             dst_location_id = self.dst_location_id.id
             transit_location_id = self.transit_location_id.id
             domain = [
@@ -168,8 +167,7 @@ class StoreRequest(models.Model):
                 ('active', '=', True)
             ]
             stock_picking = self.env['stock.picking']
-            picking_type = self.env['stock.picking.type'].search(
-                domain, limit=1)
+            picking_type = self.env['stock.picking.type'].search(domain, limit=1)
             print(picking_type)
             payload = {
                 'location_id': transit_location_id,
@@ -177,33 +175,33 @@ class StoreRequest(models.Model):
                 'picking_type_id': picking_type.id
             }
             stock_picking_id = stock_picking.create(payload)
+            move_id = self.stock_move_received(self.approve_request_ids, stock_picking_id)
             self.process(stock_picking_id)
-            stock_picking_id.action_confirm()
-            stock_picking_id.action_set_quantities_to_reservation()
-            stock_picking_id.button_validate()
 
     def do_transfer(self):
         if not self.transit_location_id:
             raise ValidationError("Pls select a Transit Location")
-        src_location_id = self.src_location_id.id
-        transit_location_id = self.transit_location_id.id
-        domain = [
-            ('code', '=', 'internal'),
-            ('warehouse_id', '=', self.warehouse_id.id),
-            ('active', '=', True)
-        ]
-        stock_picking = self.env['stock.picking']
-        picking_type = self.env['stock.picking.type'].search(
-            domain, limit=1)
-        payload = {
-            'location_id': src_location_id,
-            'location_dest_id': transit_location_id,
-            'picking_type_id': picking_type.id
-        }
-        stock_picking_id = stock_picking.create(payload)
-        stock_picking_id.action_confirm()
-        stock_picking_id.action_set_quantities_to_reservation()
-        stock_picking_id.button_validate()
+        if self:
+            src_location_id = self.src_location_id.id
+            transit_location_id = self.transit_location_id.id
+            domain = [
+                ('code', '=', 'internal'),
+                ('warehouse_id', '=', self.warehouse_id.id),
+                ('active', '=', True)
+            ]
+            stock_picking = self.env['stock.picking']
+            picking_type = self.env['stock.picking.type'].search(domain, limit=1)
+            print(picking_type)
+            payload = {
+                'location_id': src_location_id,
+                'location_dest_id': transit_location_id,
+                'picking_type_id': picking_type.id
+            }
+            stock_picking_id = stock_picking.create(payload)
+            self.stock_move(self.approve_request_ids, stock_picking_id)
+            stock_picking_id.action_confirm()
+            stock_picking_id.action_set_quantities_to_reservation()
+            stock_picking_id.button_validate()
 
     def stock_move(self, request_ids, picking_id):
         """."""
